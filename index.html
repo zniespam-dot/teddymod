@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>TeddyMod 🧸 - Mój szybki edytor</title>
+    <!-- Lekkie i bardzo szybkie biblioteki Blockly -->
+    <script src="https://unpkg.com"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #8B5A2B; /* Wymarzony brązowy kolor */
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        #blocklyDiv {
+            height: 500px;
+            width: 70%;
+            border: 3px solid #fff;
+            border-radius: 10px;
+        }
+        .stage {
+            width: 25%;
+            height: 500px;
+            background: white;
+            color: black;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>TeddyMod 🧸</h1>
+    <div class="container">
+        <div id="blocklyDiv"></div>
+        <div class="stage">🧸</div>
+    </div>
+
+    <!-- Prosty zestaw podstawowych bloków -->
+    <xml id="toolbox" style="display: none">
+        <block type="controls_repeat_ext"></block>
+        <block type="math_number"></block>
+        <block type="text_print"></block>
+    </xml>
+
+    <script>
+        // Inicjalizacja błyskawicznego edytora
+        Blockly.inject('blocklyDiv', {
+            toolbox: document.getElementById('toolbox'),
+            trashcan: true
+        });
+    </script>
+</body>
+</html>
