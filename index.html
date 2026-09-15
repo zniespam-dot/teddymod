@@ -2,61 +2,91 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>TeddyMod 🧸 - Mój szybki edytor</title>
-    <!-- Lekkie i bardzo szybkie biblioteki Blockly -->
-    <script src="https://unpkg.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeddyMod - Strona Główna</title>
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: #8B5A2B; /* Wymarzony brązowy kolor */
-            margin: 0;
-            padding: 20px;
-            color: white;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-        }
-        #blocklyDiv {
-            height: 500px;
-            width: 70%;
-            border: 3px solid #fff;
-            border-radius: 10px;
-        }
-        .stage {
-            width: 25%;
-            height: 500px;
-            background: white;
-            color: black;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 60px;
-        }
+        body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+        /* Klasyczny niebieski pasek Scratcha */
+        .navbar { background-color: #4d97ff; color: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-left { display: flex; align-items: center; gap: 30px; }
+        .logo { font-size: 24px; font-weight: bold; cursor: pointer; text-decoration: none; color: white; }
+        .nav-link { color: white; text-decoration: none; font-weight: 500; font-size: 15px; }
+        .nav-link:hover { text-decoration: underline; }
+        .btn-create { background-color: #4c2899; color: white; padding: 8px 18px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px; transition: background 0.2s; }
+        .btn-create:hover { background-color: #3b1e78; }
+        /* Baner powitalny */
+        .welcome-banner { background-color: #ffffff; margin: 30px auto; max-width: 1000px; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; }
+        .welcome-text h1 { margin: 0 0 10px 0; color: #575e75; font-size: 28px; }
+        .welcome-text p { margin: 0; color: #747b93; font-size: 16px; }
+        /* Sekcje z projektami */
+        .content-section { max-width: 1060px; margin: 0 auto 40px auto; padding: 0 20px; }
+        .section-title { color: #575e75; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .project-card { background: white; border: 1px solid #d9d9d9; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; text-decoration: none; color: inherit; transition: transform 0.2s; }
+        .project-card:hover { transform: translateY(-3px); }
+        .project-thumb { height: 140px; background-color: #8B5A2B; display: flex; align-items: center; justify-content: center; font-size: 50px; }
+        .project-info { padding: 10px; }
+        .project-name { font-weight: bold; font-size: 14px; color: #575e75; margin-bottom: 4px; }
+        .project-author { font-size: 12px; color: #999; }
     </style>
 </head>
 <body>
 
-    <h1>TeddyMod 🧸</h1>
-    <div class="container">
-        <div id="blocklyDiv"></div>
-        <div class="stage">🧸</div>
+    <!-- Nawigacja -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="logo">TeddyMod 🧸</a>
+            <a href="editor.html" class="btn-create">Stwórz</a>
+            <a href="#" class="nav-link">Eksploruj</a>
+            <a href="#" class="nav-link">Pomysły</a>
+            <a href="#" class="nav-link">O nas</a>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="nav-link" style="font-weight: bold;">Zaloguj się</a>
+        </div>
+    </nav>
+
+    <!-- Baner powitalny -->
+    <div class="welcome-banner">
+        <div class="welcome-text">
+            <h1>Witaj w TeddyMod!</h1>
+            <p>Twórz własne gry, animacje i modyfikacje za pomocą bloków. Zupełnie za darmo.</p>
+        </div>
+        <div style="font-size: 60px;">🚀</div>
     </div>
 
-    <!-- Prosty zestaw podstawowych bloków -->
-    <xml id="toolbox" style="display: none">
-        <block type="controls_repeat_ext"></block>
-        <block type="math_number"></block>
-        <block type="text_print"></block>
-    </xml>
+    <!-- Sekcja projektów -->
+    <main class="content-section">
+        <div class="section-title">Polecane projekty</div>
+        <div class="grid">
+            
+            <!-- Kafelki przykładowych gier -->
+            <a href="editor.html" class="project-card">
+                <div class="project-thumb">🏃</div>
+                <div class="project-info">
+                    <div class="project-name">Bieg Misia</div>
+                    <div class="project-author">od zniespam-dot</div>
+                </div>
+            </a>
 
-    <script>
-        // Inicjalizacja błyskawicznego edytora
-        Blockly.inject('blocklyDiv', {
-            toolbox: document.getElementById('toolbox'),
-            trashcan: true
-        });
-    </script>
+            <a href="editor.html" class="project-card">
+                <div class="project-thumb">🌌</div>
+                <div class="project-info">
+                    <div class="project-name">Kosmiczny Projekt</div>
+                    <div class="project-author">od Tester123</div>
+                </div>
+            </a>
+
+            <a href="editor.html" class="project-card">
+                <div class="project-thumb">🎵</div>
+                <div class="project-info">
+                    <div class="project-name">Maszyna Muzyczna</div>
+                    <div class="project-author">od ScratchFan</div>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
 </body>
 </html>

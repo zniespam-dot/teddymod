@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>TeddyMod 🧸 - Edytor</title>
+    <!-- Szybkie ładowanie silnika Blockly z sieci (brak lagów i ładowania w nieskończoność) -->
+    <script src="https://unpkg.com"></script>
+    <style>
+        body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: #8B5A2B; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        /* Pasek edytora */
+        .editor-header { background-color: #4c2899; color: white; padding: 10px 20px; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; padding: 5px 15px; border-radius: 4px; text-decoration: none; font-size: 14px; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        
+        .main-workspace { display: flex; flex: 1; height: calc(100vh - 44px); }
+        /* Edytor bloków */
+        #blocklyDiv { flex: 3; height: 100%; background-color: #ffffff; }
+        
+        /* Scena po prawej */
+        .stage-area { flex: 1.2; background-color: #f0f4f8; border-left: 3px solid #4c2899; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
+        .stage-title { font-weight: bold; color: #575e75; margin-bottom: 10px; font-size: 16px; }
+        .stage { width: 380px; height: 280px; border: 2px solid #ccc; background-color: white; border-radius: 8px; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* Nasz Miś 🧸 */
+        #teddy { position: absolute; font-size: 60px; left: 160px; top: 110px; transition: all 0.2s ease; width: 60px; height: 60px; text-align: center; line-height: 60px; }
+        
+        /* Przyciski sterowania sceną */
+        .controls { margin-top: 15px; display: flex; gap: 15px; }
+        .btn-run { background-color: #4C97FF; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-run:hover { background-color: #3373CC; }
+    </style>
+</head>
+<body>
+
+    <div class="editor-header">
+        <span>TeddyMod Edytor 🧸</span>
+        <a href="index.html" class="btn-back">⬅ Powrót do Strony Głównej</a>
+    </div>
+
+    <div class="main-workspace">
+        <!-- Panel z klockami -->
+        <div id="blocklyDiv"></div>
+
+        <!-- Scena podglądu -->
+        <div class="stage-area">
+            <div class="stage-title">Scena Podglądu</div>
+            <div class="stage">
+                <div id="teddy">🧸</div>
+            </div>
+            <div class="controls">
+                <button class="btn-run" onclick="runCode()">▶ Uruchom bloki</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zestaw podstawowych bloków ruchu i akcji -->
+    <xml id="toolbox" style="display: none">
+        <category name="Ruch" colour="#4C97FF">
+            <block type="move_right"></block>
+            <block type="move_left"></block>
+            <block type="move_up"></block>
+            <block type="move_down"></block>
+        </category>
+    </xml>
+
+    <script>
+        // Definicja niestandardowych klocków poruszania misia
+        Blockly.Blocks['move_right'] = { init: function() { this.appendDummyInput().appendField("idź w prawo"); this.setPreviousStatement(true, null); this.setNextStatement(true, null); this.setColour("#4C97FF"); } };
+        Blockly.Blocks['move_left'] = { init: function() { this.appendDummyInput().appendField("idź w lewo"); this.setPreviousStatement(true, null); this.setNextStatement(true, null); this.setColour("#4C97FF"); } };
+        Blockly.Blocks['move_up'] = { init: function() { this.appendDummyInput().appendField("idź w górę"); this.setPreviousStatement(true, null); this.setNextStatement(true, null); this.setColour("#4C97FF"); } };
+        Blockly.Blocks['move_down'] = { init: function() { this.appendDummyInput().appendField("idź w dół"); this.setPreviousStatement(true, null); this.setNextStatement(true, null); this.setColour("#4C97FF"); } };
+
+        // JavaScript dla klocków
+        Blockly.JavaScript = Blockly.JavaScript || {};
+        Blockly.JavaScript['move_right'] = function(block) { return "moveTeddy(30, 0);\n"; };
+        Blockly.JavaScript['move_left'] = function(block) { return "moveTeddy(-30, 0);\n"; };
+        Blockly.JavaScript['move_up'] = function(block) { return "moveTeddy(0, -30);\n"; };
+        Blockly.JavaScript['move_down'] = function(block) { return "moveTeddy(0, 30);\n"; };
+
+        // Inicjalizacja obszaru Blockly
+        const workspace = Blockly.inject('blocklyDiv', {
+            toolbox: document.getElementById('toolbox'),
+            trashcan: true
+        });
+
+        // Funkcja ruszania misiem
+        const teddy = document.getElementById('teddy');
+        let currentX = 160;
+        let currentY = 110;
+
+        function moveTeddy(x, y) {
+            currentX += x;
+            currentY += y;
+            // Blokada, żeby miś nie uciekł poza scenę
+            if(currentX < 0) currentX = 0;
+            if(currentX > 320) currentX = 320;
+            if(currentY < 0) currentY = 0;
+            if(currentY > 220) currentY = 220;
+            
+            teddy.style.left = currentX + 'px';
+            teddy.style.top = currentY + 'px';
+        }
+
+        // Uruchamianie algorytmu ułożonego z bloków
+        function runCode() {
+            window.LoopTrap = 1000;
+            Blockly.JavaScript.INFINITE_LOOP_TRAP = 'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+            const code = Blockly.JavaScript.workspaceToCode(workspace);
+            try {
+                eval(code);
+            } catch (e) {
+                alert(e);
+            }
+        }
+    </script>
+</body>
+</html>
