@@ -3,90 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeddyMod - Strona Główna</title>
+    <title>TeddyMod 🧸 - Portal Modyfikacji i Rozszerzeń</title>
     <style>
-        body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
-        /* Klasyczny niebieski pasek Scratcha */
-        .navbar { background-color: #4d97ff; color: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; color: #333; }
+        
+        /* Niebieski pasek w stylu TurboWarp / Scratch */
+        .navbar { background-color: #4d97ff; color: white; display: flex; align-items: center; justify-content: space-between; padding: 12px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .nav-left { display: flex; align-items: center; gap: 30px; }
         .logo { font-size: 24px; font-weight: bold; cursor: pointer; text-decoration: none; color: white; }
-        .nav-link { color: white; text-decoration: none; font-weight: 500; font-size: 15px; }
-        .nav-link:hover { text-decoration: underline; }
         .btn-create { background-color: #4c2899; color: white; padding: 8px 18px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px; transition: background 0.2s; }
         .btn-create:hover { background-color: #3b1e78; }
-        /* Baner powitalny */
-        .welcome-banner { background-color: #ffffff; margin: 30px auto; max-width: 1000px; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; }
-        .welcome-text h1 { margin: 0 0 10px 0; color: #575e75; font-size: 28px; }
-        .welcome-text p { margin: 0; color: #747b93; font-size: 16px; }
-        /* Sekcje z projektami */
-        .content-section { max-width: 1060px; margin: 0 auto 40px auto; padding: 0 20px; }
-        .section-title { color: #575e75; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .project-card { background: white; border: 1px solid #d9d9d9; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; text-decoration: none; color: inherit; transition: transform 0.2s; }
-        .project-card:hover { transform: translateY(-3px); }
-        .project-thumb { height: 140px; background-color: #8B5A2B; display: flex; align-items: center; justify-content: center; font-size: 50px; }
-        .project-info { padding: 10px; }
-        .project-name { font-weight: bold; font-size: 14px; color: #575e75; margin-bottom: 4px; }
-        .project-author { font-size: 12px; color: #999; }
+        
+        /* Profil GitHub */
+        .btn-github { background-color: #24292e; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; }
+        .btn-github:hover { background-color: #444; }
+        .user-logged { display: flex; align-items: center; gap: 12px; font-weight: bold; }
+        .btn-logout { background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 13px; text-decoration: underline; padding: 0; }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        
+        /* Baner główny */
+        .welcome-banner { background: linear-gradient(135deg, #4c2899, #855cd6); color: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        .welcome-text h1 { margin: 0 0 10px 0; font-size: 32px; }
+        .welcome-text p { margin: 0; font-size: 16px; opacity: 0.9; }
+
+        /* Panel wgrywania plików plików .teddy */
+        .upload-box { background: #111; color: white; border: 2px dashed #00ca4e; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 40px; }
+        .btn-upload { background: #00ca4e; color: white; padding: 10px 22px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; font-size: 14px; }
+        .btn-upload:hover { background: #00b043; }
+
+        /* Sekcja Rozszerzeń (Jak w PenguinMod) */
+        .section-title { color: #2c3e50; font-size: 22px; font-weight: bold; margin-bottom: 20px; border-bottom: 3px solid #4d97ff; padding-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+        .ext-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .ext-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 8px; }
+        .ext-icon { font-size: 32px; }
+        .ext-name { font-weight: bold; color: #4c2899; font-size: 16px; }
+        .ext-desc { font-size: 13px; color: #666; line-height: 1.4; }
+        .ext-badge { font-size: 11px; background: #eef2f7; color: #4d97ff; padding: 3px 8px; border-radius: 12px; width: max-content; font-weight: bold; }
+
+        /* Grid projektów */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .project-card { background: white; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 8px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .project-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .project-thumb { height: 130px; background: #8B5A2B; display: flex; align-items: center; justify-content: center; font-size: 55px; color: white; }
+        .project-info { padding: 12px; }
+        .project-name { font-weight: bold; font-size: 15px; color: #2c3e50; margin-bottom: 4px; }
+        .project-author { font-size: 12px; color: #7f8c8d; }
     </style>
 </head>
 <body>
 
-    <!-- Nawigacja -->
     <nav class="navbar">
         <div class="nav-left">
             <a href="index.html" class="logo">TeddyMod 🧸</a>
-            <a href="editor.html" class="btn-create">Stwórz</a>
-            <a href="#" class="nav-link">Eksploruj</a>
-            <a href="#" class="nav-link">Pomysły</a>
-            <a href="#" class="nav-link">O nas</a>
+            <a href="editor.html" class="btn-create">Otwórz Edytor Modyfikacji</a>
         </div>
-        <div class="nav-right">
-            <a href="#" class="nav-link" style="font-weight: bold;">Zaloguj się</a>
+        <div class="nav-right" id="authSection">
+            <button class="btn-github" onclick="loginWithGitHub()">
+                <svg height="18" width="18" viewBox="0 0 16 16" fill="white"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                Połącz z GitHub
+            </button>
         </div>
     </nav>
 
-    <!-- Baner powitalny -->
-    <div class="welcome-banner">
-        <div class="welcome-text">
-            <h1>Witaj w TeddyMod!</h1>
-            <p>Twórz własne gry, animacje i modyfikacje za pomocą bloków. Zupełnie za darmo.</p>
+    <div class="container">
+        <div class="welcome-banner">
+            <div class="welcome-text">
+                <h1>TeddyMod Klocki & Mody 🚀</h1>
+                <p id="welcomeMessage">Najbardziej zaawansowany dystrybutor rozszerzeń dla blokowego kodowania.</p>
+            </div>
+            <div style="font-size: 65px;">🧸</div>
         </div>
-        <div style="font-size: 60px;">🚀</div>
-    </div>
 
-    <!-- Sekcja projektów -->
-    <main class="content-section">
-        <div class="section-title">Polecane projekty</div>
-        <div class="grid">
-            
-            <!-- Kafelki przykładowych gier -->
-            <a href="editor.html" class="project-card">
-                <div class="project-thumb">🏃</div>
+        <div class="upload-box">
+            <h3 style="margin: 0 0 5px 0;">Otwórz zapisany mod (.teddy)</h3>
+            <button class="btn-upload" onclick="triggerMainImport()">📁 Wybierz plik projektu</button>
+            <input type="file" id="mainFileInput" style="display: none;" onchange="redirectToEditor(event)">
+        </div>
+
+        <!-- REJESTR ROZSZERZEŃ (Zupełnie jak w PenguinMod) -->
+        <div class="section-title">🔌 Dostępne pakiety rozszerzeń (Extensions)</div>
+        <div class="ext-grid">
+            <div class="ext-card">
+                <div class="ext-icon">🖌️</div>
+                <div class="ext-name">Pen Mod</div>
+                <div class="ext-desc">Rysowanie zaawansowanych kształtów geometrycznych bezpośrednio na płótnie Sceny.</div>
+                <div class="ext-badge">TurboWarp Core</div>
+            </div>
+            <div class="ext-card">
+                <div class="ext-icon">🤖</div>
+                <div class="ext-name">Sztuczna Inteligencja</div>
+                <div class="ext-desc">Integracja z ChatGPT OpenAI. Zadawanie pytań i generowanie odpowiedzi przez duszka.</div>
+                <div class="ext-badge">TeddyMod AI</div>
+            </div>
+            <div class="ext-card">
+                <div class="ext-icon">🎮</div>
+                <div class="ext-name">Gamepad API</div>
+                <div class="ext-desc">Obsługa zewnętrznych kontrolerów USB oraz bezprzewodowych padów do sterowania grą.</div>
+                <div class="ext-badge">PenguinMod Shared</div>
+            </div>
+            <div class="ext-card">
+                <div class="ext-icon">🌐</div>
+                <div class="ext-name">Fetch Network</div>
+                <div class="ext-desc">Wysyłanie zapytań HTTP GET/POST i pobieranie zewnętrznych danych tekstowych z sieci.</div>
+                <div class="ext-badge">Advanced Web</div>
+            </div>
+        </div>
+
+        <!-- PROJEKTY SPOŁECZNOŚCI -->
+        <div class="section-title">👥 Projekty opublikowane przez społeczność</div>
+        <div class="grid" id="projectGrid">
+            <!-- Projekty bazowe, fabryczne -->
+            <div class="project-card" onclick="downloadSampleProject('generator_ai.teddy')">
+                <div class="project-thumb">🤖</div>
                 <div class="project-info">
-                    <div class="project-name">Bieg Misia</div>
+                    <div class="project-name">Inteligentny Miś ChatGPT</div>
                     <div class="project-author">od zniespam-dot</div>
                 </div>
-            </a>
-
-            <a href="editor.html" class="project-card">
-                <div class="project-thumb">🌌</div>
+            </div>
+            <div class="project-card" onclick="downloadSampleProject('malowanie_pen.teddy')">
+                <div class="project-thumb">🎨</div>
                 <div class="project-info">
-                    <div class="project-name">Kosmiczny Projekt</div>
-                    <div class="project-author">od Tester123</div>
+                    <div class="project-name">Rysownik Szkiców (Pen Mod)</div>
+                    <div class="project-author">od Modder99</div>
                 </div>
-            </a>
-
-            <a href="editor.html" class="project-card">
-                <div class="project-thumb">🎵</div>
-                <div class="project-info">
-                    <div class="project-name">Maszyna Muzyczna</div>
-                    <div class="project-author">od ScratchFan</div>
-                </div>
-            </a>
-
+            </div>
         </div>
-    </main>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Obsługa profilu użytkownika
+            const loggedUser = localStorage.getItem("teddymod_username");
+            if (loggedUser) { updateNavbarAsLogged(loggedUser); }
 
+            // DYNAMICZNE WCZYTYWANIE PROJEKTÓW (Zintegrowane z przyciskiem Opublikuj w edytorze)
+            const grid = document.getElementById("projectGrid");
+            const communityProjects = JSON.parse(localStorage.getItem('community_projects')) || [];
+
+            communityProjects.forEach((proj, index) => {
+                const card = document.createElement("div");
+                card.className = "project-card";
+                card.onclick = () => loadSharedCommunityProject(proj.data);
+                card.innerHTML = `
+                    <div class="project-thumb" style="background:#4c2899;">🧸</div>
+                    <div class="project-info">
+                        <div class="project-name">${proj.name}</div>
+                        <div class="project-author">od ${proj.author}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        });
+
+        function loginWithGitHub() {
+            const nick = prompt("Podaj swój nick GitHub:");
+            if (!nick) return;
+            localStorage.setItem("teddymod_username", nick);
+            updateNavbarAsLogged(nick);
+        }
+
+        function updateNavbarAsLogged(username) {
+            document.getElementById("authSection").innerHTML = `
+                <div class="user-logged">
+                    <span>🐱 ${username}</span>
+                    <button class="btn-logout" onclick="logout()">Wyloguj</button>
+                </div>
+            `;
+            document.getElementById("welcomeMessage").innerHTML = `Witaj z powrotem, <b>${username}</b>! Twoje pakiety i modyfikacje są gotowe do kompilacji.`;
+        }
+
+        function logout() {
+            localStorage.removeItem("teddymod_username");
+            window.location.reload();
+        }
+
+        function triggerMainImport() { document.getElementById('mainFileInput').click(); }
+        
+        function redirectToEditor(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                localStorage.setItem('autoload_project', e.target.result);
+                window.location.href = 'editor.html';
+            };
+            reader.readAsText(file);
+        }
+
+        // Ładowanie projektów, które zostały opublikowane przez system pamięci lokalnej
+        function loadSharedCommunityProject(xmlData) {
+            localStorage.setItem('autoload_project', xmlData);
+            window.location.href = 'editor.html';
+        }
+
+        function downloadSampleProject(fileName) {
+            alert("Pobierasz plik projektu '" + fileName + "'. Uruchom go za pomocą górnego panelu wyboru plików!");
+            // Generujemy podstawowy klocek, żeby plik nie był pusty
+            const sampleXml = '<xml xmlns="https://google.com"><block type="move_right" x="50" y="50"></block></xml>';
+            const blob = new Blob([sampleXml], {type: 'text/plain'});
+            const a = document.createElement('a'); a.download = fileName; a.href = URL.createObjectURL(blob); a.click();
+        }
+    </script>
 </body>
 </html>
