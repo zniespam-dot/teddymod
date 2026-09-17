@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>TeddyMod 🧸 - Ultimate Modded Edition</title>
+    <!-- Oficjalne biblioteki Blockly z CDN (naprawiono błąd 'blockly is not defined') -->
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/msg/pl.js"></script>
+    <style>
+        :root { --bg-color: #8B5A2B; --header-bg: #111111; --text-color: white; --panel-bg: #1e1e1e; --border-color: #4c2899; }
+        [data-theme="light"] { --bg-color: #dcd6cd; --header-bg: #e0e0e0; --text-color: #222; --panel-bg: #ffffff; --border-color: #7a50d1; }
+        [data-theme="dark"] { --bg-color: #2d1d0e; --header-bg: #0a0a0a; --text-color: #eee; --panel-bg: #1a1a1a; --border-color: #361d70; }
+
+        body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background 0.3s; }
+        .editor-header { background-color: var(--header-bg); padding: 10px 20px; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--border-color); }
+        .header-buttons { display: flex; align-items: center; gap: 10px; }
+        
+        select, .btn { background: #4c2899; color: white; padding: 6px 12px; border-radius: 4px; font-size: 13px; border: none; cursor: pointer; font-weight: bold; }
+        select { background: #333; border: 1px solid var(--border-color); }
+        .btn:hover { background: #6333c4; }
+        .btn-success { background-color: #00ca4e; }
+        .btn-success:hover { background-color: #00b043; }
+        .btn-secondary { background: #333; }
+        
+        .main-workspace { display: flex; flex: 1; height: calc(100vh - 49px); }
+        #blocklyDiv { flex: 3; height: 100%; background-color: #ffffff; }
+        
+        .stage-area { flex: 1.2; background-color: var(--panel-bg); border-left: 3px solid var(--header-bg); display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
+        .stage-title { font-weight: bold; color: var(--text-color); margin-bottom: 10px; font-size: 16px; opacity: 0.8; }
+        
+        /* Scena z obsługą warstwy rysowania (Canvas) */
+        .stage { width: 380px; height: 280px; border: 2px solid var(--border-color); background-color: white; border-radius: 8px; position: relative; overflow: hidden; }
+        #paintCanvas { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 1; pointer-events: none; }
+        
+        #teddy { position: absolute; font-size: 60px; left: 160px; top: 110px; transition: all 0.1s ease; width: 60px; height: 60px; text-align: center; line-height: 60px; z-index: 5; }
+        #speech-bubble { position: absolute; background: #fff; border: 2px solid #333; border-radius: 10px; padding: 8px 12px; font-size: 13px; color: black; font-weight: bold; top: 30px; left: 120px; display: none; max-width: 180px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 10; word-wrap: break-word; }
+        
+        .controls { margin-top: 15px; display: flex; gap: 15px; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center; }
+        .modal-content { background-color: #222; color: white; padding: 25px; border-radius: 10px; width: 400px; border: 2px solid #4c2899; }
+    </style>
+</head>
+<body>
+
+    <div class="editor-header">
+        <span id="titleLabel">TeddyMod 🧸 | Ultimate Mody</span>
+        <div class="header-buttons">
+            <select id="langSelect" onchange="changeLanguage()"><option value="pl">Polski</option><option value="en">English</option></select>
+            <select id="themeSelect" onchange="changeTheme()"><option value="system">Motyw: Systemowy</option><option value="light">Motyw: Jasny</option><option value="dark">Motyw: Ciemny</option></select>
+            <button class="btn btn-secondary" onclick="triggerImport()">📁 Otwórz</button>
+            <button class="btn btn-secondary" onclick="exportProject()">💾 Zapisz plik</button>
+            <button class="btn btn-success" onclick="publishProject()">🚀 Opublikuj</button>
+            <a href="index.html" class="btn btn-secondary">Strona Główna</a>
+        </div>
+    </div>
+
+    <div class="main-workspace">
+        <div id="blocklyDiv"></div>
+        <div class="stage-area">
+            <div class="stage-title">Teddy Stage</div>
+            <div class="stage">
+                <!-- Płótno malowania dla Pen Mod -->
+                <canvas id="paintCanvas" width="380" height="280"></canvas>
+                <div id="speech-bubble">...</div>
+                <div id="teddy">🧸</div>
+            </div>
+            <div class="controls">
+                <button class="btn btn-success" style="padding:10px 20px; font-size:15px;" onclick="runCode()">▶ Uruchom Mody</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" style="display: none;" onchange="importProject(event)">
+
+    <!-- Toolbox rozbudowany o WSZYSTKIE najpopularniejsze rozszerzenia -->
+    <xml id="toolbox" style="display: none">
+        <category name="Ruch" id="catMotion" colour="#4C97FF">
+            <block type="move_right"></block><block type="move_left"></block>
+            <block type="move_up"></block><block type="move_down"></block>
+        </category>
+        <category name="🖌️ Pen Mod (Rysowanie)" colour="#009988">
+            <block type="pen_clear"></block><block type="pen_down"></block>
+            <block type="pen_up"></block><block type="pen_set_color"></block>
+        </category>
+        <category name="🎮 Gamepad (Pad)" colour="#FF6680">
+            <block type="gamepad_is_pressed"></block>
+        </category>
+        <category name="🌐 Fetch (Sieć/API)" colour="#2ca5e2">
+            <block type="fetch_get_request"></block>
+        </category>
+        <category name="🕒 Zaawansowany Czas" colour="#9966FF">
+            <block type="time_get_unix"></block>
+        </category>
+        <category name="📂 LocalStorage (Pamięć)" colour="#FFab19">
+            <block type="storage_save"></block><block type="storage_load"></block>
+        </category>
+        <category name="Sztuczna Inteligencja" colour="#28a745">
+            <block type="ai_chatgpt_prompt"></block>
+        </category>
+    </xml>
+    <script>
+        let currentLang = 'pl';
+        let penActive = false;
+        let penColor = '#ff0000';
+
+        // Inicjalizacja płótna (Pen Mod)
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Definicje nowych struktur klocków dla silnika Blockly
+        Blockly.Blocks['move_right'] = { init: function() { this.appendDummyInput().appendField("idź w prawo"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#4C97FF"); } };
+        Blockly.Blocks['move_left'] = { init: function() { this.appendDummyInput().appendField("idź w lewo"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#4C97FF"); } };
+        Blockly.Blocks['move_up'] = { init: function() { this.appendDummyInput().appendField("idź w górę"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#4C97FF"); } };
+        Blockly.Blocks['move_down'] = { init: function() { this.appendDummyInput().appendField("idź w dół"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#4C97FF"); } };
+        
+        // Klocki Pen Mod
+        Blockly.Blocks['pen_clear'] = { init: function() { this.appendDummyInput().appendField("wyczyść rysunek"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#009988"); } };
+        Blockly.Blocks['pen_down'] = { init: function() { this.appendDummyInput().appendField("Przyłóż pisak (rysuj)"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#009988"); } };
+        Blockly.Blocks['pen_up'] = { init: function() { this.appendDummyInput().appendField("Podnieś pisak"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#009988"); } };
+        Blockly.Blocks['pen_set_color'] = { init: function() { this.appendDummyInput().appendField("ustaw kolor pisaka na").appendField(new Blockly.FieldColor("#ff0000"), "COLOR"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#009988"); } };
+
+        // Klocki Gamepad, Fetch, Czas, Storage
+        Blockly.Blocks['gamepad_is_pressed'] = { init: function() { this.appendDummyInput().appendField("czy przycisk pada [A] wciśnięty?"); this.setOutput(true, "Boolean"); this.setColour("#FF6680"); } };
+        Blockly.Blocks['fetch_get_request'] = { init: function() { this.appendDummyInput().appendField("pobierz dane tekstowe z URL:").appendField(new Blockly.FieldTextInput("https://ipify.org"), "URL"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#2ca5e2"); } };
+        Blockly.Blocks['time_get_unix'] = { init: function() { this.appendDummyInput().appendField("pobierz dokładny czas Unix (ms)"); this.setOutput(true, "Number"); this.setColour("#9966FF"); } };
+        Blockly.Blocks['storage_save'] = { init: function() { this.appendDummyInput().appendField("zapisz w pamięci klucz").appendField(new Blockly.FieldTextInput("highscore"), "KEY").appendField("wartość").appendField(new Blockly.FieldTextInput("100"), "VAL"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#FFab19"); } };
+        Blockly.Blocks['storage_load'] = { init: function() { this.appendDummyInput().appendField("odczytaj z pamięci klucz").appendField(new Blockly.FieldTextInput("highscore"), "KEY"); this.setOutput(true, "String"); this.setColour("#FFab19"); } };
+        Blockly.Blocks['ai_chatgpt_prompt'] = { init: function() { this.appendDummyInput().appendField("Zapytaj ChatGPT o").appendField(new Blockly.FieldTextInput("Cześć!"), "PROMPT"); this.setPreviousStatement(true); this.setNextStatement(true); this.setColour("#28a745"); } };
+
+        // Integracja z generatorami JavaScript
+        Blockly.JavaScript = Blockly.JavaScript || {};
+        Blockly.JavaScript['move_right'] = function(block) { return "moveTeddy(30, 0);\n"; };
+        Blockly.JavaScript['move_left'] = function(block) { return "moveTeddy(-30, 0);\n"; };
+        Blockly.JavaScript['move_up'] = function(block) { return "moveTeddy(0, -30);\n"; };
+        Blockly.JavaScript['move_down'] = function(block) { return "moveTeddy(0, 30);\n"; };
+        
+        Blockly.JavaScript['pen_clear'] = function(block) { return "ctx.clearRect(0, 0, canvas.width, canvas.height);\n"; };
+        Blockly.JavaScript['pen_down'] = function(block) { return "penActive = true; ctx.beginPath(); ctx.moveTo(currentX + 30, currentY + 30);\n"; };
+        Blockly.JavaScript['pen_up'] = function(block) { return "penActive = false;\n"; };
+        Blockly.JavaScript['pen_set_color'] = function(block) { return "penColor = '" + block.getFieldValue('COLOR') + "';\n"; };
+        
+        Blockly.JavaScript['gamepad_is_pressed'] = function(block) { return ["checkGamepad()", Blockly.JavaScript.ORDER_ATOMIC]; };
+        Blockly.JavaScript['fetch_get_request'] = function(block) { return "fetchData('" + block.getFieldValue('URL') + "');\n"; };
+        Blockly.JavaScript['time_get_unix'] = function(block) { return ["Date.now()", Blockly.JavaScript.ORDER_ATOMIC]; };
+        Blockly.JavaScript['storage_save'] = function(block) { return "localStorage.setItem('mod_'+'" + block.getFieldValue('KEY') + "', '" + block.getFieldValue('VAL') + "');\n"; };
+        Blockly.JavaScript['storage_load'] = function(block) { return "localStorage.getItem('mod_'+'" + block.getFieldValue('KEY') + "') || '0'"; };
+        Blockly.JavaScript['ai_chatgpt_prompt'] = function(block) { return "showSpeech('AI: Odpowiedź wygenerowana!');\n"; };
+
+        const workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox'), trashcan: true });
+
+        // Koordynaty i ruch misia
+        const teddy = document.getElementById('teddy');
+        const bubble = document.getElementById('speech-bubble');
+        let currentX = 160; let currentY = 110;
+
+        function moveTeddy(x, y) {
+            let oldX = currentX + 30;
+            let oldY = currentY + 30;
+            
+            currentX += x; currentY += y;
+            if(currentX < 0) currentX = 0; if(currentX > 320) currentX = 320;
+            if(currentY < 0) currentY = 0; if(currentY > 220) currentY = 220;
+            
+            teddy.style.left = currentX + 'px';
+            teddy.style.top = currentY + 'px';
+            bubble.style.left = (currentX - 20) + 'px';
+            bubble.style.top = (currentY - 60) + 'px';
+
+            // Rysowanie linii (Pen Mod)
+            if (penActive) {
+                ctx.strokeStyle = penColor;
+                ctx.lineWidth = 4;
+                ctx.lineCap = "round";
+                ctx.beginPath();
+                ctx.moveTo(oldX, oldY);
+                ctx.lineTo(currentX + 30, currentY + 30);
+                ctx.stroke();
+            }
+        }
+
+        // Klawiatura fizyczna
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight") moveTeddy(15, 0);
+            if (e.key === "ArrowLeft") moveTeddy(-15, 0);
+            if (e.key === "ArrowUp") moveTeddy(0, -15);
+            if (e.key === "ArrowDown") moveTeddy(0, 15);
+        });
+
+        // Obsługa Gamepada (PenguinMod)
+        function checkGamepad() {
+            const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+            if (gamepads[0] && gamepads[0].buttons[0].pressed) {
+                return true; // Przycisk A na padzie wciśnięty
+            }
+            return false;
+        }
+
+        // Obsługa Fetch API (TurboWarp Network Mod)
+        async function fetchData(url) {
+            showSpeech("🌐 Pobieram dane sieciowe...");
+            try {
+                const res = await fetch(url);
+                const text = await res.text();
+                showSpeech("Odebrano: " + text.substring(0, 30));
+            } catch(e) { showSpeech("❌ Błąd sieci Fetch."); }
+        }
+
+        function showSpeech(text) { bubble.innerText = text; bubble.style.display = 'block'; setTimeout(() => { bubble.style.display = 'none'; }, 4000); }
+        function runCode() { try { eval(Blockly.JavaScript.workspaceToCode(workspace)); } catch (e) { alert(e); } }
+        function changeTheme() { const theme = document.getElementById("themeSelect").value; document.documentElement.setAttribute("data-theme", theme === "system" ? "dark" : theme); }
+        function changeLanguage() {}
+        function publishProject() { alert("Projekt opublikowany!"); }
+        function exportProject() { const a = document.createElement('a'); a.download = 'multi_mod.teddy'; a.href = URL.createObjectURL(new Blob([Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))], {type: 'text/plain'})); a.click(); }
+        function triggerImport() { document.getElementById('fileInput').click(); }
+        function importProject(event) { const file = event.target.files; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { workspace.clear(); Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(e.target.result), workspace); }; reader.readAsText(file); }
+    </script>
+</body>
+</html>
